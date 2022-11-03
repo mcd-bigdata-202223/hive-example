@@ -1,0 +1,111 @@
+CREATE TABLE IF NOT EXISTS students
+( 
+  name STRING,
+  number BIGINT,
+  course STRING,
+  final_grade TINYINT
+)
+COMMENT 'Students table'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+LOAD DATA LOCAL INPATH '/home/bigdata/students.txt'
+OVERWRITE INTO TABLE students
+
+CREATE EXTERNAL TABLE IF NOT EXISTS students
+( 
+  name STRING,
+  number BIGINT,
+  course STRING,
+  final_grade TINYINT
+)
+COMMENT 'Students table'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+LOCATION '/user/bigdata/tables/students';
+
+SELECT * FROM students WHERE grade > 9;
+
+SELECT * FROM students ORDER BY grade ASC;
+
+SELECT course, count(1) FROM students GROUP BY course;
+
+SELECT u.ID, u.NAME, m.TEXT FROM USERS u JOIN MESSAGES m ON (u.ID=m.USER_ID);
+
+SELECT u.ID, u.NAME, m.TEXT FROM USERS u LEFT OUTER JOIN MESSAGES m ON (u.ID=m.USER_ID)
+
+SELECT u.ID, u.NAME, m.TEXT FROM USERS u RIGHT OUTER JOIN MESSAGES m ON (u.ID=m.USER_ID)
+
+SELECT u.ID, u.NAME, m.TEXT FROM USERS u FULL OUTER JOIN MESSAGES m ON (u.ID=m.USER_ID)
+
+
+CREATE EXTERNAL TABLE IF NOT EXISTS students
+( 
+  id TINYINT,
+  name STRING,
+  number BIGINT,
+  course STRING,
+  final_grade TINYINT
+)
+COMMENT 'Students table'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+LOCATION '/user/bigdata/tables/students';
+
+CREATE EXTERNAL TABLE IF NOT EXISTS messages
+( 
+  student_id TINYINT,
+  text STRING
+)
+COMMENT 'Messages table'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+LOCATION '/user/bigdata/tables/messages';
+
+
+LOAD DATA LOCAL INPATH '/home/bigdata/hive/students.txt'
+OVERWRITE INTO TABLE students;
+
+LOAD DATA LOCAL INPATH '/home/bigdata/hive/messages.txt'
+
+OVERWRITE INTO TABLE messages;
+
+DROP TABLE students;
+
+
+CREATE TABLE IF NOT EXISTS students
+( 
+  id TINYINT,
+  name STRING,
+  number BIGINT,
+  course STRING,
+  final_grade TINYINT
+)
+COMMENT 'Students table'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+LOCATION '/user/bigdata/tables/students';
+
+CREATE TABLE IF NOT EXISTS students_by_course
+( 
+  name STRING,
+  number BIGINT,
+  final_grade TINYINT
+)
+COMMENT 'Students table'
+PARTITIONED BY(course string)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+INSERT INTO TABLE students_by_course PARTITION (course)
+SELECT name, number, final_grade, course FROM students;
+
+set mapreduce.job.reduces=1;
+set hive.exec.dynamic.partition = true;
+set hive.exec.dynamic.partition.mode = nonstrict;
